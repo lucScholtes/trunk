@@ -8,7 +8,7 @@ O.engines=[
 	ForceResetter(),
 	InsertionSortCollider([Bo1_Sphere_Aabb(),Bo1_Facet_Aabb()],label='isc'),
 	InteractionLoop(
-		[Ig2_Sphere_Sphere_Dem3DofGeom(),Ig2_Facet_Sphere_Dem3DofGeom()],
+		[Ig2_Sphere_Sphere_ScGeom(),Ig2_Facet_Sphere_ScGeom()],
 		[Ip2_FrictMat_FrictMat_FrictPhys()],
 		[Law2_Dem3DofGeom_FrictPhys_CundallStrack()]
 	),
@@ -39,7 +39,4 @@ rrr.intrAllWire,rrr.bound=True,True
 #v.axes=True
 #v.grid=(True,True,True)
 
-from yade import log
-#log.setLevel('Shop',log.TRACE)
-#log.setLevel('InsertionSortCollider',log.TRACE)
 

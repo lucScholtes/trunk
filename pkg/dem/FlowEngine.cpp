@@ -126,8 +126,12 @@ void FlowEngine::setImposedPressure ( unsigned int cond, Real p,Solver& flow )
         if ( cond>=flow->imposedP.size() ) LOG_ERROR ( "Setting p with cond higher than imposedP size." );
         flow->imposedP[cond].second=p;
         //force immediate update of boundary conditions
-        Update_Triangulation=true;
+	flow->pressureChanged=true;
+//      Update_Triangulation=true;
 }
+
+template<class Solver>
+void FlowEngine::updateBCs ( Solver& flow ) { flow->pressureChanged=true; }
 
 template<class Solver>
 void FlowEngine::imposeFlux ( Vector3r pos, Real flux,Solver& flow )
@@ -185,13 +189,12 @@ void FlowEngine::Build_Triangulation ( double P_zero, Solver& flow )
         flow->useSolver = useSolver;
         flow->VISCOSITY = viscosity;
         flow->areaR2Permeability=areaR2Permeability;
-	flow->TOLERANCE=Tolerance;
-	flow->RELAX=Relax;
+        flow->TOLERANCE=Tolerance;
+        flow->RELAX=Relax;
         flow->meanK_LIMIT = meanK_correction;
         flow->meanK_STAT = meanK_opt;
         flow->permeability_map = permeability_map;
-	if ( fluidBulkModulus > 0 ) flow->compressible = 1;
-	flow->fluidBulkModulus = fluidBulkModulus;
+        flow->fluidBulkModulus = fluidBulkModulus;
         flow->T[flow->currentTes].Clear();
         flow->T[flow->currentTes].max_id=-1;
         flow->x_min = 1000.0, flow->x_max = -10000.0, flow->y_min = 1000.0, flow->y_max = -10000.0, flow->z_min = 1000.0, flow->z_max = -10000.0;
@@ -207,7 +210,7 @@ void FlowEngine::Build_Triangulation ( double P_zero, Solver& flow )
 
         porosity = flow->V_porale_porosity/flow->V_totale_porosity;
 
-	if ( compute_K ) {BoundaryConditions ( flow ); K = flow->Sample_Permeability ( flow->x_min, flow->x_max, flow->y_min, flow->y_max, flow->z_min, flow->z_max );}
+        if ( compute_K ) {BoundaryConditions ( flow ); K = flow->Sample_Permeability ( flow->x_min, flow->x_max, flow->y_min, flow->y_max, flow->z_min, flow->z_max );}
 
         BoundaryConditions ( flow );
         flow->Initialize_pressures ( P_zero );
@@ -356,7 +359,7 @@ void FlowEngine::Initialize_volumes ( Solver& flow )
 			default: break; 
 		}
 
-		if (flow->compressible) { cell->info().invVoidVolume() = (1 / ( cell->info().volume() - flow->volumeSolidPore(cell) )); }
+		if (flow->fluidBulkModulus>0) { cell->info().invVoidVolume() = (1 / ( cell->info().volume() - flow->volumeSolidPore(cell) )); }
 	}
 	if (Debug) cout << "Volumes initialised." << endl;
 }
@@ -837,12 +840,10 @@ void PeriodicFlowEngine::Initialize_volumes ()
 			case ( 1 ) : cell->info().volume() = Volume_cell_single_fictious ( cell ); break;
 // 			case ( 2 ) : cell->info().volume() = Volume_cell_double_fictious ( cell ); break;
 // 			case ( 3 ) : cell->info().volume() = Volume_cell_triple_fictious ( cell ); break;
-
-			if (solver->compressible) { cell->info().invVoidVolume() = 1 / ( Volume_cell ( cell ) - solver->volumeSolidPore(cell) ); }
-
 			default:  cell->info().volume() = 0; break;
 		}
-        }
+		if (solver->fluidBulkModulus>0) { cell->info().invVoidVolume() = 1 / (cell->info().volume() - solver->volumeSolidPore(cell) ); }
+	}
         if ( Debug ) cout << "Volumes initialised." << endl;
 }
 
@@ -862,8 +863,7 @@ void PeriodicFlowEngine::Build_Triangulation ( double P_zero )
         solver->useSolver = useSolver;
         solver->VISCOSITY = viscosity;
         solver->areaR2Permeability=areaR2Permeability;
-	if ( fluidBulkModulus > 0 ) solver->compressible = 1;
-	solver->fluidBulkModulus = fluidBulkModulus;
+        solver->fluidBulkModulus = fluidBulkModulus;
         solver->T[solver->currentTes].Clear();
         solver->T[solver->currentTes].max_id=-1;
         AddBoundary ( solver );
