@@ -1052,7 +1052,8 @@ void FlowBoundingSphere<Tesselation>::GaussSeidel(Real dt)
 
 // 	std::ofstream iter("Gauss_Iterations", std::ios::app);
 // 	std::ofstream p_av("P_moyenne", std::ios::app);
-	if (pressureChanged) reApplyBoundaryConditions();
+// 	if (pressureChanged) reApplyBoundaryConditions();
+	reApplyBoundaryConditions();
 	RTriangulation& Tri = T[currentTes].Triangulation();
 	int j = 0;
 	double m, n, dp_max, p_max, sum_p, p_moy, dp_moy, dp, sum_dp;
@@ -1066,7 +1067,6 @@ void FlowBoundingSphere<Tesselation>::GaussSeidel(Real dt)
 #ifdef GS_OPEN_MP
 	omp_set_num_threads(num_threads);
 #endif
-
 
        if(DEBUG_OUT){ cout << "tolerance = " << tolerance << endl;
         cout << "relax = " << relax << endl;}
@@ -1113,10 +1113,8 @@ void FlowBoundingSphere<Tesselation>::GaussSeidel(Real dt)
 				if (compressible && j==0) previousP[bb]=cell->info().p();
 				
 				m=0, n=0;
-                                for (int j2=0; j2<4; j2++) {
-				  
-					if (!Tri.is_infinite(cell->neighbor(j2))) {
-					  
+				for (int j2=0; j2<4; j2++) {
+					if (!Tri.is_infinite(cell->neighbor(j2))) { 
 						/// COMPRESSIBLE: 
 						if ( compressible ) {
 							compFlowFactor = fluidBulkModulus*dt*cell->info().invVoidVolume();
