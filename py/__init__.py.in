@@ -32,6 +32,7 @@ else: sys.setdlopenflags(dl.RTLD_NOW)
 libstdcxx='${libstdcxx}' # substituted by scons
 ctypes.cdll.LoadLibrary(libstdcxx)
 #
+
 # now ready for c++ imports
 
 # find plugin directory
