@@ -9,6 +9,5 @@ env.Install('$LIBDIR/lib',env.SharedLibrary('yade-support',[
 		+(Split('triangulation/KinematicLocalisationAnalyser.cpp triangulation/Timer.cpp triangulation/basicVTKwritter.cpp triangulation/FlowBoundingSphere.cpp triangulation/PeriodicFlow.cpp triangulation/Tenseur3.cpp triangulation/TriaxialState.cpp') if 'cgal' in env['features'] else [])
 		+(['opengl/GLUtils.cpp'] if 'opengl' in env['features'] else [])
 		),
- 		],LIBS=['dl','m']+[l for l in env['LIBS'] if l!='yade-support']+(['glut','GL','GLU'] if 'opengl' in env['features'] else []),LINKFLAGS=env['LINKFLAGS']+['-pthread','-Wl','-Bsymbolic-function','-ansi'],CXXFLAGS=env['CXXFLAGS']+['-pthread','-fPIC','-frounding-math','-ansi']
+ 		],LIBS=['dl','m']+(['taucs','metis','openblas','gomp','gfortran'] if 'cgal' in env['features'] else [])+[l for l in env['LIBS'] if l!='yade-support']+(['glut','GL','GLU'] if 'opengl' in env['features'] else []),LINKFLAGS=env['LINKFLAGS']+['-L/home/3S-LAB/lscholtes/taucs_full/lib/linux/','-L/home/3S-LAB/lscholtes/xianyi-OpenBLAS-5b7f443/','-pthread','-Wl','-Bsymbolic-function','-ansi'],CXXFLAGS=env['CXXFLAGS']+['-fPIC','-frounding-math','-ansi']
 ))
-
